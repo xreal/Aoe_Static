@@ -133,8 +133,7 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
 
         foreach ((array)$varnishServers as $varnishServer) {
             foreach ($urls as $url) {
-                $varnishUrl = "http://" . $varnishServer . '/' . $url;
-
+                $varnishUrl = "http://" . $varnishServer . $url;
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $varnishUrl);
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PURGE');

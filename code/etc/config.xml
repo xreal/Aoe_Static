@@ -28,12 +28,23 @@
         <cache>
             <types>
                 <aoestatic translate="label,description" module="varnish">
-                    <label>Varnish</label>
-                    <description>Full page cache in Varnish</description>
-                    <tags>VARNISH</tags>
+                    <label><![CDATA[Varnish™]]></label>
+                    <description><![CDATA[Full page cache in Varnish™]]></description>
+                    <tags></tags>
                 </aoestatic>
             </types>
         </cache>
+        <events>
+            <!-- Purge tags related urls (cms/categorie/product) -->
+            <application_clean_cache>
+                <observers>
+                    <aoestatic>
+                        <class>aoestatic/cache</class>
+                        <method>purgeCache</method>
+                    </aoestatic>
+                </observers>
+            </application_clean_cache>
+        </events>
     </global>
     <adminhtml>
         <events>

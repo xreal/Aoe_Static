@@ -6,6 +6,7 @@
  * @package     Aoe_Static
  * @author		Fabrizio Branca <mail@fabrizio-branca.de>
  * @author      Toni Grigoriu <toni@tonigrigoriu.com>
+ * @author      Stephan Hoyer <ste.hoyer@gmail.com>
  */
 class Aoe_Static_Model_Observer
 {
