@@ -97,7 +97,8 @@ class Aoe_Static_Model_Cache
      * @param Mage_Catalog_Model_Product $product
      * @return array
      */
-    protected function _getUrlsForProduct($product){
+    protected function _getUrlsForProduct($product)
+    {
         $urls = array();
 
         $store_id = $product->getStoreId();
@@ -127,7 +128,6 @@ class Aoe_Static_Model_Cache
             $url = Mage::getUrl($routePath, $routeParams);
             $urls[] = $url;
         }
-
         return $urls;
     }
 
@@ -137,30 +137,19 @@ class Aoe_Static_Model_Cache
      * @param $category
      * @return array
      */
-    protected function _getUrlsForCategory($category) {
+    protected function _getUrlsForCategory($category)
+    {
         $urls = array();
-        $routePath = 'catalog/category/view';
-
-        $store_id = $category->getStoreId();
-        $routeParams['id']  = $category->getId();
-        $routeParams['s']   = $category->getUrlKey();
-        $routeParams['_store'] = (!$store_id ? 1 : $store_id); # Default store id is 1
-        $url = Mage::getUrl($routePath, $routeParams);
-        $urls[] = $url;
-
         // Collect all rewrites
         $rewrites = Mage::getModel('core/url_rewrite')->getCollection();
         $rewrites->getSelect()->where("id_path = 'category/{$category->getId()}'");
         foreach($rewrites as $r) {
-            unset($routeParams);
-            $routePath = '';
             $routeParams['_direct'] = $r->getRequestPath();
             $routeParams['_store'] = $r->getStoreId();
             $routeParams['_nosid'] = True;
-            $url = Mage::getUrl($routePath, $routeParams);
+            $url = Mage::getUrl('', $routeParams);
             $urls[] = $url;
         }
-
         return $urls;
     }
 
