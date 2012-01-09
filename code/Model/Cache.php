@@ -101,15 +101,6 @@ class Aoe_Static_Model_Cache
     {
         $urls = array();
 
-        $store_id = $product->getStoreId();
-
-        $routePath = 'catalog/product/view';
-        $routeParams['id']  = $product->getId();
-        $routeParams['s']   = $product->getUrlKey();
-        $routeParams['_store'] = (!$store_id ? 1: $store_id);
-        $url = Mage::getUrl($routePath, $routeParams);
-        $urls[] = $url;
-
         // Collect all rewrites
         $rewrites = Mage::getModel('core/url_rewrite')->getCollection();
         if (!Mage::getConfig('catalog/seo/product_use_categories')) {
