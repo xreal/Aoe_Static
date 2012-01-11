@@ -69,20 +69,32 @@ class Aoe_Static_Model_Cache
         if (!empty($urls)) {
             $errors = $this->getHelper()->purge($urls);
             if (!empty($errors)) {
-                Mage::getSingleton('adminhtml/session')->addError(
-                    "Some Varnish purges failed: <br/>" . implode("<br/>", $errors));
+                $msg = $helper->__(
+                    "Some Varnish purges failed: %s",
+                    $this->getListHtml($errors)
+                );
+                Mage::getSingleton('adminhtml/session')->addError($msg);
             } else {
-                $count = count($relativeUrls);
+                $count = count($urls);
                 if ($count > 5) {
-                    $relativeUrls = array_slice($relativeUrls, 0, 5);
-                    $relativeUrls[] = '...';
-                    $relativeUrls[] = "(Total number of purged urls: $count)";
+                    $urls = array_slice($urls, 0, 5);
+                    $urls[] = '...';
                 }
-                Mage::getSingleton('adminhtml/session')->addSuccess($helper->__("%s sites have been purged", count($relativeUrls)));
+                $msg = $helper->__(
+                    "%s sites have been purged: %s",
+                    $count,
+                    $this->getListHtml($urls)
+                );
+                Mage::getSingleton('adminhtml/session')->addSuccess($msg);
             }
         }
         $this->done = true;
         return $this;
+    }
+
+    protected function getListHtml($array)
+    {
+        return '<ul><li>' . implode('</li><li>', $array) . '</li></ul>';
     }
 
     /**
