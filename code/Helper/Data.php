@@ -42,7 +42,7 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
             }
         }
         return false;
-	}
+    }
 
     /**
      * Function to determine, if we are in cache context. Returns true, if
@@ -87,26 +87,6 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Return varnish servers from configuration
-     *
-     * @return array
-     */
-    public function getVarnishServers()
-    {
-        $serverConfig = Mage::getStoreConfig('system/aoe_static/varnish_servers');
-        $varnishServers = array();
-
-        foreach (explode(',', $serverConfig) as $value ) {
-            $varnishServers[] = trim($value);
-        }
-
-        if (0 == count($varnishServers)) {
-            return array('127.0.0.1:80');
-        }
-        return $varnishServers;
-    }
-
-    /**
      * Purges all cache on all Varnish servers.
      *
      * @return array errors if any
@@ -124,26 +104,21 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function purge(array $urls)
     {
-        $varnishServers = $this->getVarnishServers();
         $errors = array();
-
         // Init curl handler
         $curlHandlers = array(); // keep references for clean up
         $mh = curl_multi_init();
 
-        foreach ((array)$varnishServers as $varnishServer) {
-            foreach ($urls as $url) {
-                $varnishUrl = "http://" . $varnishServer . $url;
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $varnishUrl);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PURGE');
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        foreach ($urls as $url) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PURGE');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 
-                curl_multi_add_handle($mh, $ch);
-                $curlHandlers[] = $ch;
-            }
+            curl_multi_add_handle($mh, $ch);
+            $curlHandlers[] = $ch;
         }
 
         do {
@@ -153,7 +128,6 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
         // Error handling and clean up
         foreach ($curlHandlers as $ch) {
             $info = curl_getinfo($ch);
-
             if (curl_errno($ch)) {
                 $errors[] = "Cannot purge url {$info['url']} due to error" . curl_error($ch);
             } else if ($info['http_code'] != 200 && $info['http_code'] != 404) {

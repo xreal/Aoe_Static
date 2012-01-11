@@ -66,14 +66,8 @@ class Aoe_Static_Model_Cache
             }
         }
 
-        // Transform urls to relative urls
-        $relativeUrls = array();
-        foreach ($urls as $url) {
-            $relativeUrls[] = parse_url($url, PHP_URL_PATH);
-        }
-
-        if (!empty($relativeUrls)) {
-            $errors = $this->getHelper()->purge($relativeUrls);
+        if (!empty($urls)) {
+            $errors = $this->getHelper()->purge($urls);
             if (!empty($errors)) {
                 Mage::getSingleton('adminhtml/session')->addError(
                     "Some Varnish purges failed: <br/>" . implode("<br/>", $errors));
@@ -154,12 +148,17 @@ class Aoe_Static_Model_Cache
     {
         $urls = array();
         $page = Mage::getModel('cms/page')->load($cmsPageId);
-        if ($page->getId()) {
-            $urls[] = '/' . $page->getIdentifier();
-        }
-        //Current page is homepage?
-        if (Mage::getStoreConfig('web/default/cms_home_page') == $page->getIdentifier()) {
-            $urls[] = '/';
+        foreach ($page->getStoreId() as $store) {
+            $store = Mage::app()->getStore($store);
+            $baseUrl = $store->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
+            if ($page->getId()) {
+                $urls[] = $baseUrl . $page->getIdentifier();
+            }
+            //Current page is homepage?
+            $homePageId = Mage::getStoreConfig('web/default/cms_home_page');
+            if ($homePageId == $page->getIdentifier()) {
+                $urls[] = $baseUrl;
+            }
         }
         return $urls;
     }
