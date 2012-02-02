@@ -93,7 +93,8 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function purgeAll()
     {
-        return $this->purge(array('.*'));
+        $baseUrl = $store->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
+        return $this->purge(array($baseUrl . '.*'));
     }
 
     /**
