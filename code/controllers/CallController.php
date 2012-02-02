@@ -28,20 +28,29 @@ class Aoe_Static_CallController extends Mage_Core_Controller_Front_Action {
 		}
 
 		$this->loadLayout();
+		$this->_initLayoutMessages('checkout/session');
+		$this->_initLayoutMessages('catalog/session');
+		$this->_initLayoutMessages('customer/session');
+		$this->_initLayoutMessages('core/session');
 		$layout = $this->getLayout();
 
 		$requestedBlockNames = $this->getRequest()->getParam('getBlocks');
 		if (is_array($requestedBlockNames)) {
+			$requestedBlockNames = array_unique($requestedBlockNames);
 			foreach ($requestedBlockNames as $id => $requestedBlockName) {
 				$tmpBlock = $layout->getBlock($requestedBlockName);
 				if ($tmpBlock) {
-					$response['blocks'][$id] = $tmpBlock->toHtml();
+					if($requestedBlockName == 'messages'){
+						$response['blocks'][$id] = $layout->getMessagesBlock()->getGroupedHtml();
+					}else{
+						$response['blocks'][$id] = $tmpBlock->toHtml();
+					}
 				} else {
-					$response['blocks'][$id] = 'BLOCK NOT FOUND';
+					$response['blocks'][$id] = '<!--BLOCK NOT FOUND-->';
 				}
 			}
 		}
 		$this->getResponse()->setBody(Zend_Json::encode($response));
 	}
-
+	
 }
