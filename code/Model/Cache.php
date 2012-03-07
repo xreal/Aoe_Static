@@ -37,8 +37,9 @@ class Aoe_Static_Model_Cache
         if ($this->isCachableAction) {
             $tags = Mage::getModel('aoestatic/tag')
                 ->loadTagsCollection($this->tags);
-            Mage::log($tags->toArray());
-            Mage::log(Mage::helper('core/url')->getCurrentUrl());
+            $currentUrl = Mage::helper('core/url')->getCurrentUrl();
+            $url = Mage::getModel('aoestatic/url')->loadOrCreateUrl($currentUrl);
+            $url->setTags($tags);
         }
     }
 

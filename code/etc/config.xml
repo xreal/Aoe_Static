@@ -31,9 +31,9 @@
                     <tag>
                         <table>aoe_static_tag</table>
                     </tag>
-                    <url_tag>
-                        <table>aoe_static_url_tag</table>
-                    </url_tag>
+                    <urltag>
+                        <table>aoe_static_urltag</table>
+                    </urltag>
                     <url>
                         <table>aoe_static_url</table>
                     </url>
