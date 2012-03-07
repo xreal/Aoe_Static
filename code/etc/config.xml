@@ -23,8 +23,38 @@
         <models>
             <aoestatic>
                 <class>Aoe_Static_Model</class>
+                <resourceModel>aoestatic_mysql4</resourceModel>
             </aoestatic>
+            <aoestatic_mysql4>
+                <class>Aoe_Static_Model_Mysql4</class>              
+                <entities>
+                    <tag>
+                        <table>aoe_static_tag</table>
+                    </tag>
+                    <url_tag>
+                        <table>aoe_static_url_tag</table>
+                    </url_tag>
+                    <url>
+                        <table>aoe_static_url</table>
+                    </url>
+                    <purgeurl>
+                        <table>aoe_static_purgeurl</table>
+                    </purgeurl>
+                </entities>
+            </aoestatic_mysql4>
         </models>
+        <resources>
+            <aeostatic_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </aeostatic_write>
+            <aeostatic_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </aeostatic_read>      
+        </resources> 
         <helpers>
             <aoestatic>
                 <class>Aoe_Static_Helper</class>
@@ -40,6 +70,22 @@
             </types>
         </cache>
         <events>
+            <core_block_abstract_to_html_after>
+                <observers>
+                    <aoestatic>
+                        <class>aoestatic/cache</class>
+                        <method>collectTags</method>
+                    </aoestatic>
+                </observers>
+            </core_block_abstract_to_html_after>
+            <controller_front_send_response_after>
+                <observers>
+                    <aoestatic>
+                        <class>aoestatic/cache</class>
+                        <method>saveTags</method>
+                    </aoestatic>
+                </observers>
+            </controller_front_send_response_after>
             <!-- Purge tags related urls (cms/categorie/product) -->
             <application_clean_cache>
                 <observers>

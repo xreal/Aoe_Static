@@ -10,6 +10,55 @@
 class Aoe_Static_Model_Cache
 {
     var $done = false;
+    var $tags = array();
+    var $isCacheableAction = true;
+
+    /**
+     * Collect all layout tags that where used generating the content
+     *
+     * @param $observer Mage_Core_Model_Observer
+     * @return Aoe_Static_Model_Cache
+     **/
+    public function collectTags($observer)
+    {
+        //cache check if cachable to improve performance
+        $this->isCachableAction = $this->isCacheableAction
+            && $this->getHelper()->isCacheableAction();
+
+        if ($this->isCachableAction) {
+            $this->tags = array_merge($this->tags, $observer->getBlock()->getCacheTags());
+        }
+        return $this;
+    }
+
+    public function saveTags($observer)
+    {
+        if ($this->isCachableAction) {
+            $tags = $this->getTags();
+            Mage::log($tags->toArray());
+            Mage::helper('core/url')->getCurrentUrl();
+        }
+    }
+
+    protected function getTags()
+    {
+        $siteTags = array_unique($this->tags);
+        $tags = Mage::getModel('aoestatic/tag')->getCollection()
+            ->addFieldToFilter('tag', $siteTags);
+        $existingTags = array();
+        foreach ($tags as $tag) {
+            if (in_array($tag->getTag(), $siteTags)) {
+                $existingTags[] = $tag->getTag();
+            }
+        }
+        $newTags = array_diff($siteTags, $existingTags);
+        foreach ($newTags as $tag) {
+            $tag = Mage::getModel('aoestatic/tag')->setTag($tag);
+            $tag->save();
+            $tags->addItem($tag);
+        }
+        return $tags;
+    }
 
     public function getHelper()
     {
@@ -21,7 +70,7 @@ class Aoe_Static_Model_Cache
      * model is saved.
      *
      * @param $observer Mage_Core_Model_Observer
-     * @return Magneto_Varnish_Model_Observer
+     * @return Aoe_Static_Model_Cache
      */
     public function purgeCache($observer)
     {
