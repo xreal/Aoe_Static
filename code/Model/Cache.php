@@ -32,20 +32,46 @@ class Aoe_Static_Model_Cache
         return $this;
     }
 
+    /**
+     * Saves tags off current url to database.
+     * 
+     * @param mixed $observer 
+     * @return Aoe_Static_Model_Cache
+     */
     public function saveTags($observer)
     {
         if ($this->isCachableAction) {
             $tags = Mage::getModel('aoestatic/tag')
                 ->loadTagsCollection($this->tags);
             $currentUrl = Mage::helper('core/url')->getCurrentUrl();
-            $url = Mage::getModel('aoestatic/url')->loadOrCreateUrl($currentUrl);
+            $url = Mage::getModel('aoestatic/url')
+                ->loadOrCreateUrl($currentUrl);
             $url->setTags($tags);
         }
+        return $this;
     }
 
     public function getHelper()
     {
         return Mage::helper('aoestatic');
+    }
+
+    /**
+     * Sets purge flag for each url that has one of the given tags.
+     * 
+     * @param array $tags 
+     * @param int $priority 
+     * @return Aoe_Static_Model_Cache
+     */
+    public function purgeByTags($tags=array(), $priority=0)
+    {
+        $urls = Mage::getModel('aoestatic/url')->getUrlsByTagStrings($tags);
+        foreach ($urls as $url) {
+            if (is_null($url->getPurgePrio()) || $priority > $url->getPurgePrio()) {
+                $url->setPurgePrio($priority)->save();
+            }
+        }
+        return $this;
     }
 
     /**

@@ -6,6 +6,12 @@ class Aoe_Static_Model_Url extends Mage_Core_Model_Abstract
         $this->_init('aoestatic/url');
     }   
 
+    /**
+     * Finds url given by path, if not in db, creates it
+     * 
+     * @param String $path 
+     * @return Aoe_Static_Model_Url
+     */
     public function loadOrCreateUrl($path)
     {
         $url = Mage::getModel('aoestatic/url')
@@ -18,6 +24,12 @@ class Aoe_Static_Model_Url extends Mage_Core_Model_Abstract
         return $url;
     }
 
+    /**
+     * Replaces tags of this url with given tags
+     * 
+     * @param Aoe_Static_Model_Mysql4_Tag_Collection $tags 
+     * @return Aoe_Static_Model_Url
+     */
     public function setTags($tags)
     {
         $this->deleteExistingTags();
@@ -30,6 +42,11 @@ class Aoe_Static_Model_Url extends Mage_Core_Model_Abstract
         return $this;
     }
 
+    /**
+     * Deletes all existing tags for this url
+     * 
+     * @return Aoe_Static_Model_Url
+     */
     protected function deleteExistingTags()
     {
         $urlTags = Mage::getModel('aoestatic/urltag')->getCollection()
@@ -37,6 +54,32 @@ class Aoe_Static_Model_Url extends Mage_Core_Model_Abstract
         foreach ($urlTags as $tag) {
             $tag->delete();
         }
+        return $this;
+    }
+
+    /**
+     * Fetches url-collection with urls that are tagged
+     * with at least on of the given tags
+     * 
+     * @param String|Array $tags 
+     * @return Aoe_Static_Model_Mysql4_Url_Collection
+     */
+    public function getUrlsByTagStrings($tags)
+    {
+        $resource = Mage::getSingleton('core/resource');
+        $urls = Mage::getModel('aoestatic/url')->getCollection()
+            ->addFieldToFilter('tag.tag', $tags);
+        $urls->getSelect()
+            ->join(
+                array('urltag'=>$resource->getTableName('aoestatic/urltag')), 
+                'main_table.url_id = urltag.url_id'
+            )
+            ->join(
+                array('tag'=>$resource->getTableName('aoestatic/tag')), 
+                'urltag.tag_id = tag.tag_id'
+            )
+            ->group('main_table.url_id');
+        return $urls;
     }
 }
 
