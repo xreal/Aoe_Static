@@ -57,15 +57,14 @@ class Aoe_Static_Model_Cache
     }
 
     /**
-     * Sets purge flag for each url that has one of the given tags.
+     * Sets purge flag for each url
      * 
-     * @param array $tags 
+     * @param array $urls 
      * @param int $priority 
      * @return Aoe_Static_Model_Cache
      */
-    public function purgeByTags($tags=array(), $priority=0)
+    public function markToPurge($urls=array(), $priority=0)
     {
-        $urls = Mage::getModel('aoestatic/url')->getUrlsByTagStrings($tags);
         foreach ($urls as $url) {
             if (is_null($url->getPurgePrio()) || $priority > $url->getPurgePrio()) {
                 $url->setPurgePrio($priority)->save();
@@ -94,7 +93,6 @@ class Aoe_Static_Model_Cache
         }
 
         $tags = $observer->getTags();
-        $urls = array();
 
         if ($tags == array()) {
             $errors = $helper->purgeAll();
@@ -105,25 +103,39 @@ class Aoe_Static_Model_Cache
             }
             return;
         }
-        // compute the urls for affected entities
-        foreach ((array)$tags as $tag) {
-            //catalog_product_100 or catalog_category_186
-            $tag_fields = explode('_', $tag);
-            if (count($tag_fields)==3) {
-                if ($tag_fields[1]=='product') {
-                    // get urls for product
-                    $product = Mage::getModel('catalog/product')->load($tag_fields[2]);
-                    $urls = array_merge($urls, $this->_getUrlsForProduct($product));
-                } elseif ($tag_fields[1]=='category') {
-                    $category = Mage::getModel('catalog/category')->load($tag_fields[2]);
-                    $category_urls = $this->_getUrlsForCategory($category);
-                    $urls = array_merge($urls, $category_urls);
-                } elseif ($tag_fields[1]=='page') {
-                    $urls = $this->_getUrlsForCmsPage($tag_fields[2]);
-                }
-            }
-        }
+        $this->purgeByTags($tags);
+        $this->done = true;
+    }
 
+    /**
+     * Wrapper to purge cache by tags synconiously or 
+     * async depending on configuration
+     * 
+     * @param Array\String $tags 
+     * @return Aoe_Static_Model_Cache
+     */
+    public function purgeByTags($tags)
+    {
+        $urls = Mage::getModel('aoestatic/url')->getUrlsByTagStrings($tags);
+        // TODO Add system configuration for this
+        $purgeSynconiously = true;
+        if ($purgeSynconiously) {
+            $this->syncronPurge($urls);
+        } else {
+            $this->markToPurge($urls);
+        }
+        return $this;
+    }
+
+    /**
+     * Trigger purge of all urls directly at varnish instance
+     * 
+     * @param Array|Collection $urls 
+     * @return Aoe_Static_Model_Cache
+     */
+    public function syncronPurge($urls)
+    {
+        $helper = $this->getHelper();
         if (!empty($urls)) {
             $errors = $this->getHelper()->purge($urls);
             if (!empty($errors)) {
@@ -134,25 +146,11 @@ class Aoe_Static_Model_Cache
                 Mage::getSingleton('adminhtml/session')->addError($msg);
             } else {
                 $count = count($urls);
-                if ($count > 5) {
-                    $urls = array_slice($urls, 0, 5);
-                    $urls[] = '...';
-                }
-                $msg = $helper->__(
-                    "%s sites have been purged: %s",
-                    $count,
-                    $this->getListHtml($urls)
-                );
+                $msg = $helper->__( "%s sites have been purged.", $count);
                 Mage::getSingleton('adminhtml/session')->addSuccess($msg);
             }
         }
-        $this->done = true;
         return $this;
-    }
-
-    protected function getListHtml($array)
-    {
-        return '<ul><li>' . implode('</li><li>', $array) . '</li></ul>';
     }
 
     /**

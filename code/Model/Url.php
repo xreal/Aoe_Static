@@ -6,6 +6,10 @@ class Aoe_Static_Model_Url extends Mage_Core_Model_Abstract
         $this->_init('aoestatic/url');
     }   
 
+    public function __toString()
+    {
+        return $this->getUrl();
+    }
     /**
      * Finds url given by path, if not in db, creates it
      * 

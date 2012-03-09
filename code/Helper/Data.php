@@ -97,6 +97,10 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->purge(array($baseUrl . '.*'));
     }
 
+    public function purgeByTags($tags)
+    {
+        return Mage::getModel('aoestatic/cache')->purgeByTags($tags);
+    }
     /**
      * Purge an array of urls on all varnish servers.
      *

@@ -87,10 +87,10 @@ class Aoe_Static_Model_Observer
      */
     public function cleanVarnishCache($observer)
     {
+        $varnishHelper = Mage::helper('aoestatic'); /* @var $varnishHelper Magneto_Varnish_Helper_Data */
         $types = Mage::app()->getRequest()->getParam('types');
         if (Mage::app()->useCache('aoestatic') ) {
             if( (is_array($types) && in_array('aoestatic', $types)) || $types == "aoestatic") {
-                $varnishHelper = Mage::helper('aoestatic'); /* @var $varnishHelper Magneto_Varnish_Helper_Data */
                 $errors = $varnishHelper->purgeAll();
                 if (count($errors) > 0) {
                     $this->_getSession()->addError(Mage::helper('adminhtml')->__("Error while purging Varnish cache:<br />" . implode('<br />', $errors)));
@@ -98,6 +98,7 @@ class Aoe_Static_Model_Observer
                     $this->_getSession()->addSuccess(Mage::helper('adminhtml')->__("Varnish cache cleared!"));
                 }
             }
+            $varnishHelper->purgeByTags($types);
         }
     }
 }
