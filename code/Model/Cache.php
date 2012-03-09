@@ -22,7 +22,7 @@ class Aoe_Static_Model_Cache
     public function collectTags($observer)
     {
         //cache check if cachable to improve performance
-        $this->isCachableAction = $this->isCacheableAction
+        $this->isCacheableAction = $this->isCacheableAction
             && $this->getHelper()->isCacheableAction();
 
         if ($this->isCachableAction) {
@@ -40,7 +40,7 @@ class Aoe_Static_Model_Cache
      */
     public function saveTags($observer)
     {
-        if ($this->isCachableAction) {
+        if ($this->isCacheableAction) {
             $tags = Mage::getModel('aoestatic/tag')
                 ->loadTagsCollection($this->tags);
             $currentUrl = Mage::helper('core/url')->getCurrentUrl();
@@ -137,7 +137,7 @@ class Aoe_Static_Model_Cache
      */
     public function purge($urls, $priority=0)
     {
-        $purgeSynconiously = Mage::getStoreConfig('system/aoe_static/purge_synconiously');
+        $purgeSynconiously = Mage::getStoreConfig('system/aoe_static/purge_syncroniously');
         if ($purgeSynconiously) {
             $this->syncronPurge($urls);
         } else {
@@ -187,14 +187,15 @@ class Aoe_Static_Model_Cache
             if (count($urlsToPurge) < $pageSize) {
                 $urlsToPurge[] = $url;
             } else {
-                $this->syncronPurge($urls);
-                $urls = array();
+                $this->syncronPurge($urlsToPurge);
+                $urlsToPurge = array();
                 $pageCount--;
             }
             if ($pageCount == 0) {
                 break;
             }
         }
+		$this->syncronPurge($urlsToPurge);
     }
     /**
      * Returns all the urls related to product

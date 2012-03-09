@@ -122,7 +122,7 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
         // Init curl handler
         $curlRequests = array(); // keep references for clean up
         $mh = curl_multi_init();
-        $syncronPurge = Mage::getStoreConfig('system/aoe_static/purge_synconiously');
+        $syncronPurge = Mage::getStoreConfig('system/aoe_static/purge_syncroniously');
         $autoRebuild = Mage::getStoreConfig('system/aoe_static/auto_rebuild_cache');
 
         foreach ($urls as $url) {

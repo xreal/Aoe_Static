@@ -28,7 +28,7 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</cache_actions>
-						<purge_synconiously translate="label">
+						<purge_syncroniously translate="label">
 							<label>Purge synconiously</label>
 							<comment><![CDATA[If on, cache is purge imidiatly upon magento cache refesh, if off, cache is only marked to be purged and a cron job will do the dirty work.]]></comment>
                             <frontend_type>select</frontend_type>
@@ -37,7 +37,7 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
-						</purge_synconiously>
+						</purge_syncroniously>
 						<auto_rebuild_cache translate="label">
 							<label>Auto rebuild cache</label>
 							<comment><![CDATA[ATTENTION! This does not work in syncron mode. Varnish-Cache is not only purged but will be recreated so that customer always gets cached content.]]></comment>
