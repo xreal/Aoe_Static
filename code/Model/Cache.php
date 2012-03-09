@@ -11,6 +11,7 @@ class Aoe_Static_Model_Cache
 {
     var $done = false;
     var $tags = array();
+    var $staticBlocks = array();
     var $isCacheableAction = true;
 
     /**
@@ -24,12 +25,31 @@ class Aoe_Static_Model_Cache
         //cache check if cachable to improve performance
         $this->isCacheableAction = $this->isCacheableAction
             && $this->getHelper()->isCacheableAction();
-
-        if ($this->isCachableAction) {
-            $this->tags = array_merge($this->tags, 
-                $observer->getBlock()->getCacheTags());
+        if ($this->isCacheableAction) {
+            $block = $observer->getBlock();
+            $tags = array_unique($block->getCacheTags());
+            if ($block instanceof Mage_Cms_Block_Block) {
+                // special handling for static blocks: we cant get the real
+                // id here but only the block alias, so we have to fetch it
+                // later on in fetchTagsForStaticBlocks method
+                $this->staticBlocks[] = $block->getBlockId();
+            } else if ($block instanceof Mage_Cms_Block_Page) {
+                $this->tags[] = 'cms_page_' . $block->getPage()->getPageId();
+            }
+            $this->tags = array_merge($this->tags, $tags);
         }
         return $this;
+    }
+
+    protected function fetchTagsForStaticBlocks($staticBlocks)
+    {
+        $tags = array();
+        $blocks = Mage::getModel('cms/block')->getCollection()
+            ->addFieldToFilter('identifier', $staticBlocks);
+        foreach ($blocks as $block) {
+            $tags[] = 'cms_block_' . $block->getId();
+        }
+        return $tags;
     }
 
     /**
@@ -41,8 +61,12 @@ class Aoe_Static_Model_Cache
     public function saveTags($observer)
     {
         if ($this->isCacheableAction) {
+            $this->tags = array_merge(
+                $this->fetchTagsForStaticBlocks($this->staticBlocks),
+                $this->tags
+            );
             $tags = Mage::getModel('aoestatic/tag')
-                ->loadTagsCollection($this->tags);
+                ->loadTagsCollection(array_unique($this->tags));
             $currentUrl = Mage::helper('core/url')->getCurrentUrl();
             $url = Mage::getModel('aoestatic/url')
                 ->loadOrCreateUrl($currentUrl);
@@ -124,6 +148,11 @@ class Aoe_Static_Model_Cache
      */
     public function purgeByTags($tags, $priority=0)
     {
+        // these tags get refreshed on every refresh of one block or page so
+        // that all pages/blocks get purged. This is not expected behaviour and
+        // should be prevented.
+        $neverPurgeTheseTags = array('cms_block', 'cms_page');
+        $tags = array_diff($tags, $neverPurgeTheseTags);
         $urls = Mage::getModel('aoestatic/url')->getUrlsByTagStrings($tags);
         $this->purge($urls, $priority);
     }
@@ -195,7 +224,7 @@ class Aoe_Static_Model_Cache
                 break;
             }
         }
-		$this->syncronPurge($urlsToPurge);
+        $this->syncronPurge($urlsToPurge);
     }
     /**
      * Returns all the urls related to product

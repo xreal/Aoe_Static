@@ -16,8 +16,10 @@ class Aoe_Static_Model_Tag extends Mage_Core_Model_Abstract
     public function loadTagsCollection($pageTags)
     {
         $pageTags = array_unique($pageTags);
-        $collection = Mage::getModel('aoestatic/tag')->getCollection()
-            ->addFieldToFilter('tag', $pageTags);
+        $collection = Mage::getModel('aoestatic/tag')->getCollection();
+        if(count($pageTags) > 0){
+            $collection->addFieldToFilter('tag', $pageTags);
+        }
         $existingTags = array();
         foreach ($collection as $tag) {
             if (in_array($tag->getTag(), $pageTags)) {
