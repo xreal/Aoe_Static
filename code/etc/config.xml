@@ -5,7 +5,7 @@
         <Aoe_Static>
             <active>true</active>
             <codePool>local</codePool>
-            <version>0.0.2</version>
+            <version>0.1.0</version>
         </Aoe_Static>
     </modules>
 
@@ -44,6 +44,15 @@
             </aoestatic_mysql4>
         </models>
         <resources>
+            <aoestatic_setup>
+                <setup>
+                    <module>Aoe_Static</module>
+                    <class>Aoe_Static_Model_Mysql4_Setup</class>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </aoestatic_setup>
             <aeostatic_write>
                 <connection>
                     <use>core_write</use>
