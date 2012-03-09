@@ -65,11 +65,20 @@ class Aoe_Static_Model_Cache
      */
     public function markToPurge($urls=array(), $priority=0)
     {
+        $count = count($urls);
+        if ($count == 0) {
+            return;
+        }
         foreach ($urls as $url) {
             if (is_null($url->getPurgePrio()) || $priority > $url->getPurgePrio()) {
                 $url->setPurgePrio($priority)->save();
             }
         }
+        $helper = $this->getHelper();
+        $msg = 1 == $count 
+            ? $helper->__("1 site has been marked to be purged.")
+            : $helper->__("%s sites have been marked to be purged.", $count);
+        Mage::getSingleton('adminhtml/session')->addSuccess($msg);
         return $this;
     }
 
@@ -114,15 +123,14 @@ class Aoe_Static_Model_Cache
      * @param Array\String $tags 
      * @return Aoe_Static_Model_Cache
      */
-    public function purgeByTags($tags)
+    public function purgeByTags($tags, $priority=0)
     {
         $urls = Mage::getModel('aoestatic/url')->getUrlsByTagStrings($tags);
-        // TODO Add system configuration for this
-        $purgeSynconiously = true;
+        $purgeSynconiously = Mage::getStoreConfig('system/aoe_static/purge_synconiously');
         if ($purgeSynconiously) {
             $this->syncronPurge($urls);
         } else {
-            $this->markToPurge($urls);
+            $this->markToPurge($urls, $priority);
         }
         return $this;
     }
