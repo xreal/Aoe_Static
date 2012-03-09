@@ -35,7 +35,10 @@ jQuery(document).ready(function($) {
 	}
 
 	// E.T. phone home
-	if (typeof data.currentProductId !== 'undefined' || counter > 0) {
+    if (
+        (typeof data.currentProductId !== 'undefined' || counter > 0) && 
+        typeof AJAXHOME_URL !== 'undefined'
+    ) {
 		$.get(
 			AJAXHOME_URL,
 			data,
