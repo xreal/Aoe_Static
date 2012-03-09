@@ -104,26 +104,29 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Purge an array of urls on all varnish servers.
      *
-     * @param array $urls
+     * @param array|Collection $urls
      * @return array with all errors
      */
-    public function purge(array $urls)
+    public function purge($urls)
     {
         $errors = array();
         // Init curl handler
-        $curlHandlers = array(); // keep references for clean up
+        $curlRequests = array(); // keep references for clean up
         $mh = curl_multi_init();
 
         foreach ($urls as $url) {
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_URL, ''.$url);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PURGE');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 
             curl_multi_add_handle($mh, $ch);
-            $curlHandlers[] = $ch;
+            $curlRequests[] = array(
+                'handler' => $ch,
+                'url' => $url
+            );
         }
 
         do {
@@ -131,14 +134,24 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
         } while ($active);
 
         // Error handling and clean up
-        foreach ($curlHandlers as $ch) {
+        foreach ($curlRequests as $request) {
+            $ch = $request['handler'];
             $info = curl_getinfo($ch);
             if (curl_errno($ch)) {
-                $errors[] = "Cannot purge url {$info['url']} due to error" . curl_error($ch);
+                $errors[] = $this->__("Cannot purge url %s due to error: %s", 
+                    $info['url'],
+                    curl_error($ch)
+                );
             } else if ($info['http_code'] != 200 && $info['http_code'] != 404) {
-                $errors[] = "Cannot purge url {$info['url']}, http code: {$info['http_code']}. curl error: " . curl_error($ch);
+                $msg = 'Cannot purge url %s, http code: %s. curl error: %s';
+                $errors[] = $this->__($msg, $info['url'], $info['http_code'],
+                    curl_error($ch)
+                );
+            } else {
+                if ($request['url'] instanceof Aoe_Static_Model_Url) {
+                    $request['url']->delete();
+                }
             }
-
             curl_multi_remove_handle($mh, $ch);
             curl_close($ch);
         }
