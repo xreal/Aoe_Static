@@ -85,5 +85,17 @@ class Aoe_Static_Model_Url extends Mage_Core_Model_Abstract
             ->group('main_table.url_id');
         return $urls;
     }
+
+    /**
+     * Get urls to purge ordered by prio 
+     * 
+     * @return Aoe_Static_Model_Mysql4_Url_Collection
+     */
+    public function getUrlsToPurgeByPrio()
+    {
+        return Mage::getModel('aoestatic/url')->getCollection()
+            ->addFieldToFilter('purge_prio', array('notnull' => true))
+            ->setOrder('purge_prio', 'DESC');
+    }
 }
 

@@ -97,13 +97,21 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->purge(array($baseUrl . '.*'));
     }
 
+    /**
+     * Purges cache by given tags with given priority in asyncron mode
+     * 
+     * @param mixed $tags 
+     * @param int $priority 
+     * @return Aoe_Static_Helper_Data
+     */
     public function purgeByTags($tags, $priority=0)
     {
-        return Mage::getModel('aoestatic/cache')->purgeByTags($tags, $priority);
+        Mage::getModel('aoestatic/cache')->purgeByTags($tags, $priority);
+        return $this;
     }
-    
+
     /**
-     * Purge an array of urls on all varnish servers.
+     * Purge an array of urls on varnish server.
      *
      * @param array|Collection $urls
      * @return array with all errors
@@ -114,11 +122,15 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
         // Init curl handler
         $curlRequests = array(); // keep references for clean up
         $mh = curl_multi_init();
+        $syncronPurge = Mage::getStoreConfig('system/aoe_static/purge_synconiously');
+        $autoRebuild = Mage::getStoreConfig('system/aoe_static/auto_rebuild_cache');
 
         foreach ($urls as $url) {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, ''.$url);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PURGE');
+            if ($syncronPurge || !$autoRebuild) {
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PURGE');
+            }
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);

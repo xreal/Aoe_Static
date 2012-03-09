@@ -117,8 +117,7 @@ class Aoe_Static_Model_Cache
     }
 
     /**
-     * Wrapper to purge cache by tags synconiously or 
-     * async depending on configuration
+     * Purges cache by tags
      * 
      * @param Array\String $tags 
      * @return Aoe_Static_Model_Cache
@@ -126,6 +125,18 @@ class Aoe_Static_Model_Cache
     public function purgeByTags($tags, $priority=0)
     {
         $urls = Mage::getModel('aoestatic/url')->getUrlsByTagStrings($tags);
+        $this->purge($urls, $priority);
+    }
+
+    /**
+     * Wrapper to purge cache synconiously or async depending on configuration
+     * 
+     * @param mixed $urls 
+     * @param int $priority 
+     * @return void
+     */
+    public function purge($urls, $priority=0)
+    {
         $purgeSynconiously = Mage::getStoreConfig('system/aoe_static/purge_synconiously');
         if ($purgeSynconiously) {
             $this->syncronPurge($urls);
@@ -161,6 +172,30 @@ class Aoe_Static_Model_Cache
         return $this;
     }
 
+    /**
+     * This method is used by the cron to trigger purges by priority
+     * 
+     * @return void
+     */
+    public function processPurge()
+    {
+        $urls = Mage::getModel('aoestatic/url')->getUrlsToPurgeByPrio();
+        $pageSize = Mage::getStoreConfig('system/aoe_static/page_size');
+        $pageCount = Mage::getStoreConfig('system/aoe_static/page_count');
+        $urlsToPurge = array();
+        foreach ($urls as $url) {
+            if (count($urlsToPurge) < $pageSize) {
+                $urlsToPurge[] = $url;
+            } else {
+                $this->syncronPurge($urls);
+                $urls = array();
+                $pageCount--;
+            }
+            if ($pageCount == 0) {
+                break;
+            }
+        }
+    }
     /**
      * Returns all the urls related to product
      *
