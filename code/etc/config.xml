@@ -3,8 +3,6 @@
 
     <modules>
         <Aoe_Static>
-            <active>true</active>
-            <codePool>local</codePool>
             <version>0.1.0</version>
         </Aoe_Static>
     </modules>
@@ -23,10 +21,10 @@
         <models>
             <aoestatic>
                 <class>Aoe_Static_Model</class>
-                <resourceModel>aoestatic_mysql4</resourceModel>
+                <resourceModel>aoestatic_resource</resourceModel>
             </aoestatic>
-            <aoestatic_mysql4>
-                <class>Aoe_Static_Model_Mysql4</class>              
+            <aoestatic_resource>
+                <class>Aoe_Static_Model_Resource</class>
                 <entities>
                     <tag>
                         <table>aoe_static_tag</table>
@@ -41,17 +39,13 @@
                         <table>aoe_static_purgeurl</table>
                     </purgeurl>
                 </entities>
-            </aoestatic_mysql4>
+            </aoestatic_resource>
         </models>
         <resources>
             <aoestatic_setup>
                 <setup>
                     <module>Aoe_Static</module>
-                    <class>Aoe_Static_Model_Mysql4_Setup</class>
                 </setup>
-                <connection>
-                    <use>core_setup</use>
-                </connection>
             </aoestatic_setup>
             <aoestatic_write>
                 <connection>
@@ -79,24 +73,6 @@
             </types>
         </cache>
         <events>
-            <core_block_abstract_to_html_after>
-                <observers>
-                    <aoestatic>
-                        <class>aoestatic/cache</class>
-                        <type>singleton</type>
-                        <method>collectTags</method>
-                    </aoestatic>
-                </observers>
-            </core_block_abstract_to_html_after>
-            <controller_front_send_response_after>
-                <observers>
-                    <aoestatic>
-                        <class>aoestatic/cache</class>
-                        <type>singleton</type>
-                        <method>saveTags</method>
-                    </aoestatic>
-                </observers>
-            </controller_front_send_response_after>
             <!-- Purge tags related urls (cms/categorie/product) -->
             <application_clean_cache>
                 <observers>
@@ -140,6 +116,22 @@
             </aoestatic>
         </routers>
         <events>
+            <core_block_abstract_to_html_after>
+                <observers>
+                    <aoestatic>
+                        <class>aoestatic/cache</class>
+                        <method>collectTags</method>
+                    </aoestatic>
+                </observers>
+            </core_block_abstract_to_html_after>
+            <controller_front_send_response_after>
+                <observers>
+                    <aoestatic>
+                        <class>aoestatic/cache</class>
+                        <method>saveTags</method>
+                    </aoestatic>
+                </observers>
+            </controller_front_send_response_after>
             <!-- Setting the response headers to control varnish -->
             <controller_action_predispatch>
                 <observers>
@@ -164,19 +156,14 @@
         <system>
             <aoe_static>
                 <cache_actions><![CDATA[cms_index_index;86400,
-                    cms_page_view;86400,
-                    catalog_product_view;86400,
-                    catalog_category_view;86400]]>
+cms_page_view;86400,
+catalog_product_view;86400,
+catalog_category_view;86400]]>
                 </cache_actions>
                 <page_size>10</page_size>
                 <page_count>10</page_count>
             </aoe_static>
         </system>
-        <dev>
-            <template>
-                <allow_symlink>1</allow_symlink>
-            </template>
-        </dev>
     </default>
     <!-- temporärer cron zum cache leeren nach bestandsabgleich - nur verwendet bis async leeren umgesetzt -->
     <crontab>
