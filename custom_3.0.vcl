@@ -33,10 +33,8 @@ sub vcl_recv {
         } else {
             set req.http.X-Forwarded-For = client.ip;
         }
-    } elsif(req.restarts == 1 && req.url ~ "/media/vinos/products/") {
-	set req.url = regsub(req.url, "/media/vinos/(.*/).*(\..*)", "/media/vinos/\1__dummy__\2");
-    }
-    
+    }    
+
     if (req.request != "GET" &&
       req.request != "HEAD" &&
       req.request != "PUT" &&
@@ -122,11 +120,6 @@ sub vcl_fetch {
        return (restart);
     }
 
-    # vinos specific
-    if (beresp.status == 404 && req.url ~ "/media/vinos/products/") {
-       return (restart);
-    }
-  
     # set minimum timeouts to auto-discard stored objects
     set beresp.grace = 5m;
 
