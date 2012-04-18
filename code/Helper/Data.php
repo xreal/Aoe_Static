@@ -94,6 +94,11 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
     public function purgeAll()
     {
         $baseUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
+	# TODO Truncate table instead of deleting every url
+	$urls = Mage::getModel('aoestatic/url')->getCollection();
+        foreach ($urls as $url) {
+	    $url->delete();
+        }
         return $this->purge(array($baseUrl . '.*'));
     }
 
@@ -130,6 +135,11 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
             curl_setopt($ch, CURLOPT_URL, ''.$url);
             if ($syncronPurge || !$autoRebuild) {
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PURGE');
+            } else {
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		    "Cache-Control: no-cache", 
+		    "Pragma: no-cache"
+		));
             }
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
@@ -162,7 +172,7 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
                 );
             } else {
                 if ($request['url'] instanceof Aoe_Static_Model_Url) {
-                    $request['url']->delete();
+                    #$request['url']->delete();
                 }
             }
             curl_multi_remove_handle($mh, $ch);

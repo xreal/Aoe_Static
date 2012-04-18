@@ -53,16 +53,16 @@
                     <use>core_setup</use>
                 </connection>
             </aoestatic_setup>
-            <aeostatic_write>
+            <aoestatic_write>
                 <connection>
                     <use>core_write</use>
                 </connection>
-            </aeostatic_write>
-            <aeostatic_read>
+            </aoestatic_write>
+            <aoestatic_read>
                 <connection>
                     <use>core_read</use>
                 </connection>
-            </aeostatic_read>      
+            </aoestatic_read>
         </resources> 
         <helpers>
             <aoestatic>
@@ -83,6 +83,7 @@
                 <observers>
                     <aoestatic>
                         <class>aoestatic/cache</class>
+                        <type>singleton</type>
                         <method>collectTags</method>
                     </aoestatic>
                 </observers>
@@ -91,6 +92,7 @@
                 <observers>
                     <aoestatic>
                         <class>aoestatic/cache</class>
+                        <type>singleton</type>
                         <method>saveTags</method>
                     </aoestatic>
                 </observers>
@@ -100,6 +102,7 @@
                 <observers>
                     <aoestatic>
                         <class>aoestatic/cache</class>
+                        <type>singleton</type>
                         <method>purgeCache</method>
                     </aoestatic>
                 </observers>

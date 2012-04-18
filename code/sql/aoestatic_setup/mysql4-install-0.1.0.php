@@ -30,8 +30,6 @@ KEY `IDX_TAG_ID` (`tag_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 
-ALTER TABLE `aoe_static_urltag`
-    ADD FOREIGN KEY (`tag_id`) REFERENCES `aoe_static_tag` (`tag_id`) ON DELETE CASCADE;
 ALTER TABLE  `aoe_static_urltag` 
     ADD FOREIGN KEY (`url_id`) REFERENCES `aoe_static_url` (`url_id`) ON DELETE CASCADE;
 ");

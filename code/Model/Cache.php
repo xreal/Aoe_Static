@@ -9,7 +9,8 @@
  */
 class Aoe_Static_Model_Cache
 {
-    var $done = false;
+    var $doneTags = array();
+    var $msgSent = false;
     var $tags = array();
     var $staticBlocks = array();
     var $isCacheableAction = true;
@@ -43,6 +44,9 @@ class Aoe_Static_Model_Cache
 
     protected function fetchTagsForStaticBlocks($staticBlocks)
     {
+        if (empty($staticBlocks)) {
+            return array();
+        }
         $tags = array();
         $blocks = Mage::getModel('cms/block')->getCollection()
             ->addFieldToFilter('identifier', $staticBlocks);
@@ -60,6 +64,9 @@ class Aoe_Static_Model_Cache
      */
     public function saveTags($observer)
     {
+        //cache check if cachable to improve performance
+        $this->isCacheableAction = $this->isCacheableAction
+            && $this->getHelper()->isCacheableAction();
         if ($this->isCacheableAction) {
             $this->tags = array_merge(
                 $this->fetchTagsForStaticBlocks($this->staticBlocks),
@@ -102,7 +109,10 @@ class Aoe_Static_Model_Cache
         $msg = 1 == $count 
             ? $helper->__("1 site has been marked to be purged.")
             : $helper->__("%s sites have been marked to be purged.", $count);
-        Mage::getSingleton('adminhtml/session')->addSuccess($msg);
+	if (!$this->msgSent) {
+	    Mage::getSingleton('adminhtml/session')->addSuccess($msg);
+            $this->msgSent = true;
+        }
         return $this;
     }
 
@@ -115,10 +125,6 @@ class Aoe_Static_Model_Cache
      */
     public function purgeCache($observer)
     {
-        //Only purge cache once per request
-        if ($this->done) {
-            return;
-        }
         $helper = $this->getHelper();
         // If Varnish is not enabled on admin don't do anything
         if (!$helper->isActive()) {
@@ -126,6 +132,7 @@ class Aoe_Static_Model_Cache
         }
 
         $tags = $observer->getTags();
+        $tags = is_array($tags) ? $tags : array($tags);
 
         if ($tags == array()) {
             $errors = $helper->purgeAll();
@@ -136,8 +143,10 @@ class Aoe_Static_Model_Cache
             }
             return;
         }
+        //Only purge cache once per request
+        $tags = array_diff($tags, $this->doneTags);
         $this->purgeByTags($tags);
-        $this->done = true;
+        $this->doneTags = array_merge($this->doneTags, $tags);
     }
 
     /**
@@ -146,12 +155,17 @@ class Aoe_Static_Model_Cache
      * @param Array\String $tags 
      * @return Aoe_Static_Model_Cache
      */
-    public function purgeByTags($tags, $priority=0)
+    public function purgeByTags($tags=array(), $priority=0)
     {
-        // these tags get refreshed on every refresh of one block or page so
-        // that all pages/blocks get purged. This is not expected behaviour and
-        // should be prevented.
-        $neverPurgeTheseTags = array('cms_block', 'cms_page');
+        $tags = is_string($tags) ? array($tags) : $tags;
+        if(empty($tags)){
+            return;
+        }
+        // these tags get refreshed on every refresh of one product, category, 
+        // block or page so that all products/categries/pages/blocks get purged. 
+        // This is not expected behaviour and should be prevented.
+        $neverPurgeTheseTags = array('cms_block', 'cms_page', 'catalog_product', 
+            'catalog_category');
         $tags = array_diff($tags, $neverPurgeTheseTags);
         $urls = Mage::getModel('aoestatic/url')->getUrlsByTagStrings($tags);
         $this->purge($urls, $priority);

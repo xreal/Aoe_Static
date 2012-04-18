@@ -23,9 +23,12 @@ class Aoe_Static_Model_Url extends Mage_Core_Model_Abstract
             ->addFieldToFilter('url', $path)
             ->getFirstItem();
         if (!$url->getId()) {
-            $url->setUrl($path)->save();
+            $url->setUrl($path);
+        } else {
+            $url->setPurgePrio(null);
         }
-        return $url;
+        $url->save();
+	return $url;
     }
 
     /**
@@ -70,6 +73,9 @@ class Aoe_Static_Model_Url extends Mage_Core_Model_Abstract
      */
     public function getUrlsByTagStrings($tags)
     {
+	if (empty($tags)) {
+            return array();
+        }
         $resource = Mage::getSingleton('core/resource');
         $urls = Mage::getModel('aoestatic/url')->getCollection()
             ->addFieldToFilter('tag.tag', $tags);
