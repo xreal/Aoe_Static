@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
 <config>
     <api>
-      <resources>
-          <clearcache>
-              <title>Clear cache via API</title>
-            <model>Aoe_Static_Model_Api</model>
-            <methods>
-              <bytag translate="title" module="aoestatic">
-                  <title>clear by tag</title>
-              </bytag>
-            </methods>
-          </clearcache>
-      </resources>
-      <resources_alias>
+        <resources>
+            <clearcache>
+                <title>Clear cache via API</title>
+                <model>Aoe_Static_Model_Api</model>
+                <methods>
+                    <bytag translate="title" module="aoestatic">
+                        <title>clear by tag</title>
+                    </bytag>
+                </methods>
+            </clearcache>
+        </resources>
+        <resources_alias>
             <clearcache>clearcache</clearcache>
         </resources_alias>
         <v2>

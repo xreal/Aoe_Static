@@ -109,8 +109,8 @@ class Aoe_Static_Model_Cache
         $msg = 1 == $count 
             ? $helper->__("1 site has been marked to be purged.")
             : $helper->__("%s sites have been marked to be purged.", $count);
-	if (!$this->msgSent) {
-	    Mage::getSingleton('adminhtml/session')->addSuccess($msg);
+        if (!$this->msgSent) {
+            Mage::getSingleton('adminhtml/session')->addSuccess($msg);
             $this->msgSent = true;
         }
         return $this;

@@ -4,6 +4,6 @@ class Aoe_Static_Model_Mysql4_Tag_Collection extends Mage_Core_Model_Mysql4_Coll
 {
     protected function _construct()
     {
-            $this->_init('aoestatic/tag');
+        $this->_init('aoestatic/tag');
     }
 }

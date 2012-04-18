@@ -28,7 +28,7 @@ class Aoe_Static_Model_Url extends Mage_Core_Model_Abstract
             $url->setPurgePrio(null);
         }
         $url->save();
-	return $url;
+        return $url;
     }
 
     /**
@@ -73,7 +73,7 @@ class Aoe_Static_Model_Url extends Mage_Core_Model_Abstract
      */
     public function getUrlsByTagStrings($tags)
     {
-	if (empty($tags)) {
+        if (empty($tags)) {
             return array();
         }
         $resource = Mage::getSingleton('core/resource');
