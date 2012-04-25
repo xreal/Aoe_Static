@@ -101,4 +101,51 @@ class Aoe_Static_Model_Observer
             $varnishHelper->purgeByTags($types);
         }
     }
+
+    /**
+     * Fires collect tags and replacePlaceholder functions for every block
+     * if current action is cachable.
+     *
+     * @param type $observer
+     * @return Aoe_Static_Model_Observer
+     */
+    public function htmlAfter($observer)
+    {
+        //cache check if cachable to improve performance
+        $this->isCacheableAction = $this->isCacheableAction
+            && $this->getHelper()->isCacheableAction();
+        if ($this->isCacheableAction) {
+            Mage::getSingleton('aoestatic/cache')->collectTags($observer);
+            $this->replacePlacholder($observer);
+        }
+        return $this;
+    }
+
+    /**
+     * Replace content block wiht placeholder content
+     * if block is customer related.
+     *
+     * @param type $observer
+     */
+    protected function replacePlacholder($observer)
+    {
+        $name = $observer->getBlock()->getNameInLayout();
+        if (is_null($this->customerBlocks)) {
+            $this->customerBlocks = $this->getHelper()->getCustomerBlocks();
+        }
+        if (in_array($name, $this->customerBlocks)) {
+            $placholder = '<div class="placeholder" rel="%s"></div>';
+            $observer->getTransport()->setHtml(sprintf($placholder, $name));
+        }
+    }
+
+    public function getHelper()
+    {
+        return Mage::helper('aoestatic');
+    }
+
+    public function getCache()
+    {
+        return Mage::getSingleton('aoestatic/cache');
+    }
 }
