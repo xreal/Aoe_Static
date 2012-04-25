@@ -10,6 +10,9 @@
  */
 class Aoe_Static_Model_Observer
 {
+    var $isCacheableAction = true;
+    var $customerBlocks=null;
+
     /**
      * Check when varnish caching should be enabled.
      *
