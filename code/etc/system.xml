@@ -80,6 +80,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
+                            <comment><![CDATA[Comma separated list of all blocks that should be refreshed via AJAX request. You can also add a static block that is sent to cache instead of regular content separated by semicollon.<br />e. G. top.links;top_links_template]]></comment>
                         </customer_blocks>
                     </fields>
                 </aoe_static>

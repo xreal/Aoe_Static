@@ -163,6 +163,9 @@ catalog_category_view;86400]]>
                 </cache_actions>
                 <page_size>10</page_size>
                 <page_count>10</page_count>
+                <customer_blocks><![CDATA[top.links,
+cart.sidebar]]>
+                </customer_blocks>
             </aoe_static>
         </system>
     </default>
