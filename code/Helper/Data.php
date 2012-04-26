@@ -51,9 +51,14 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getCustomerBlocks()
     {
-        return array_map('trim', explode(',',
-            Mage::getStoreConfig('system/aoe_static/customer_blocks'))
-        );
+        $blocks = explode(',',
+                Mage::getStoreConfig('system/aoe_static/customer_blocks'));
+        $customerBlocks = array();
+        foreach($blocks as $block) {
+            $block = explode(';', $block);
+            $customerBlocks[trim($block[0])] = trim($block[1]);
+        }
+        return $customerBlocks;
     }
 
     /**
