@@ -24,14 +24,23 @@ class Aoe_Static_Model_Cache
     public function collectTags($observer)
     {
         $block = $observer->getBlock();
-        $tags = array_unique($block->getCacheTags());
+        $tags = $block->getCacheTags();
         if ($block instanceof Mage_Cms_Block_Block) {
             // special handling for static blocks: we cant get the real
             // id here but only the block alias, so we have to fetch it
             // later on in fetchTagsForStaticBlocks method
             $this->staticBlocks[] = $block->getBlockId();
         } else if ($block instanceof Mage_Cms_Block_Page) {
-            $this->tags[] = 'cms_page_' . $block->getPage()->getPageId();
+            $tags[] = 'cms_page_' . $block->getPage()->getPageId();
+        } else if ($block instanceof Mage_Catalog_Block_Product_View) {
+            $tags[] = 'catalog_product_' . $block->getProduct()->getId();
+        } else if ($block instanceof Mage_Catalog_Block_Product_List) {
+            $productCollection = $block->getLoadedProductCollection();
+            foreach($productCollection as $product) {
+                $tags[] = 'catalog_product_' . $product->getId();
+            }
+        } else if ($block instanceof Mage_Catalog_Block_Category_View) {
+            $tags[] = 'catalog_category_' . $block->getCurrentCategory()->getId();
         }
         $this->tags = array_merge($this->tags, $tags);
     }
