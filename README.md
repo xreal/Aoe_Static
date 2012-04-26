@@ -12,7 +12,7 @@ already has some items in the cart.
 
 ## Installation
 
-The easiest way to install the module is with the use of [modman](colinmollenhour/modman). 
+The easiest way to install the module is with the use of [modman](/colinmollenhour/modman). 
 Alternativly you can download the module as archive
 and copy the folders accordingly. Don't simply copy the folder over your
 magento installation, the pathes in the module are not the same as in the 
