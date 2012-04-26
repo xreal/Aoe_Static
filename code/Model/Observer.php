@@ -136,9 +136,11 @@ class Aoe_Static_Model_Observer
         if (is_null($this->customerBlocks)) {
             $this->customerBlocks = $this->getHelper()->getCustomerBlocks();
         }
-        if (in_array($name, $this->customerBlocks)) {
-            $placholder = '<div class="placeholder" rel="%s"></div>';
-            $observer->getTransport()->setHtml(sprintf($placholder, $name));
+        if (array_key_exists($name, $this->customerBlocks)) {
+            $placholder = '<div class="placeholder" rel="%s">%s</div>';
+            Mage::log('cms_block'.$this->customerBlocks[$name]);
+            $cmsHtml = Mage::getBlockSingleton('cms/block')->setBlockId($this->customerBlocks[$name])->toHtml();
+            $observer->getTransport()->setHtml(sprintf($placholder, $name, $cmsHtml));
         }
     }
 

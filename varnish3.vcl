@@ -12,6 +12,16 @@ backend default {
 # redefine any of these subroutines, the built-in logic will be
 # appended to your code.
 sub vcl_recv {
+    # PURGE requests
+    if (req.request == "PURGE") {
+    # Allow requests from trusted IPs to purge the cache
+       # if (client.ip ~ trusted) {
+            ban("req.url ~ " + req.url);
+            error 200 "Purged.";
+        #} else {
+        #    error 405 "Not allowed.";
+        #}
+    }
     if (req.restarts == 0) {
 	if (req.http.x-forwarded-for) {
 	    set req.http.X-Forwarded-For =

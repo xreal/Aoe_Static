@@ -1,5 +1,4 @@
 <layout version="0.1.0">
-
     <default>
         <reference name="head">
             <action method="addJs"><script>aoestatic/common.js</script></action>
@@ -9,7 +8,6 @@
             <block type="aoestatic/beforebodyend" template="aoestatic/beforebodyend.phtml"></block>
         </reference>
     </default>
-
     <!-- This layout handle will only be processed if a cacheable controller action is detected (see configuration) -->
     <!-- If you decide to replace dynamic block only in cacheable actions you can move the content of the default block in this one -->
     <aoestatic_cacheable>

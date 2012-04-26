@@ -51,9 +51,14 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getCustomerBlocks()
     {
-        return array_map('trim', explode(',',
-            Mage::getStoreConfig('system/aoe_static/customer_blocks'))
-        );
+        $blocks = explode(',',
+                Mage::getStoreConfig('system/aoe_static/customer_blocks'));
+        $customerBlocks = array();
+        foreach($blocks as $block) {
+            $block = explode(';', $block);
+            $customerBlocks[trim($block[0])] = trim($block[1]);
+        }
+        return $customerBlocks;
     }
 
     /**
@@ -116,9 +121,9 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Purges cache by given tags with given priority in asyncron mode
-     * 
-     * @param mixed $tags 
-     * @param int $priority 
+     *
+     * @param mixed $tags
+     * @param int $priority
      * @return Aoe_Static_Helper_Data
      */
     public function purgeByTags($tags, $priority=0)
@@ -149,7 +154,7 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PURGE');
             } else {
                 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                    "Cache-Control: no-cache", 
+                    "Cache-Control: no-cache",
                     "Pragma: no-cache"
                 ));
             }
@@ -173,7 +178,7 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
             $ch = $request['handler'];
             $info = curl_getinfo($ch);
             if (curl_errno($ch)) {
-                $errors[] = $this->__("Cannot purge url %s due to error: %s", 
+                $errors[] = $this->__("Cannot purge url %s due to error: %s",
                     $info['url'],
                     curl_error($ch)
                 );

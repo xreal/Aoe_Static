@@ -24,14 +24,23 @@ class Aoe_Static_Model_Cache
     public function collectTags($observer)
     {
         $block = $observer->getBlock();
-        $tags = array_unique($block->getCacheTags());
+        $tags = $block->getCacheTags();
         if ($block instanceof Mage_Cms_Block_Block) {
             // special handling for static blocks: we cant get the real
             // id here but only the block alias, so we have to fetch it
             // later on in fetchTagsForStaticBlocks method
             $this->staticBlocks[] = $block->getBlockId();
         } else if ($block instanceof Mage_Cms_Block_Page) {
-            $this->tags[] = 'cms_page_' . $block->getPage()->getPageId();
+            $tags[] = 'cms_page_' . $block->getPage()->getPageId();
+        } else if ($block instanceof Mage_Catalog_Block_Product_View) {
+            $tags[] = 'catalog_product_' . $block->getProduct()->getId();
+        } else if ($block instanceof Mage_Catalog_Block_Product_List) {
+            $productCollection = $block->getLoadedProductCollection();
+            foreach($productCollection as $product) {
+                $tags[] = 'catalog_product_' . $product->getId();
+            }
+        } else if ($block instanceof Mage_Catalog_Block_Category_View) {
+            $tags[] = 'catalog_category_' . $block->getCurrentCategory()->getId();
         }
         $this->tags = array_merge($this->tags, $tags);
     }
@@ -52,8 +61,8 @@ class Aoe_Static_Model_Cache
 
     /**
      * Saves tags off current url to database.
-     * 
-     * @param mixed $observer 
+     *
+     * @param mixed $observer
      * @return Aoe_Static_Model_Cache
      */
     public function saveTags($observer)
@@ -83,9 +92,9 @@ class Aoe_Static_Model_Cache
 
     /**
      * Sets purge flag for each url
-     * 
-     * @param array $urls 
-     * @param int $priority 
+     *
+     * @param array $urls
+     * @param int $priority
      * @return Aoe_Static_Model_Cache
      */
     public function markToPurge($urls=array(), $priority=0)
@@ -100,7 +109,7 @@ class Aoe_Static_Model_Cache
             }
         }
         $helper = $this->getHelper();
-        $msg = 1 == $count 
+        $msg = 1 == $count
             ? $helper->__("1 site has been marked to be purged.")
             : $helper->__("%s sites have been marked to be purged.", $count);
         if (!$this->msgSent) {
@@ -145,8 +154,8 @@ class Aoe_Static_Model_Cache
 
     /**
      * Purges cache by tags
-     * 
-     * @param Array\String $tags 
+     *
+     * @param Array\String $tags
      * @return Aoe_Static_Model_Cache
      */
     public function purgeByTags($tags=array(), $priority=0)
@@ -155,10 +164,10 @@ class Aoe_Static_Model_Cache
         if(empty($tags)){
             return;
         }
-        // these tags get refreshed on every refresh of one product, category, 
-        // block or page so that all products/categries/pages/blocks get purged. 
+        // these tags get refreshed on every refresh of one product, category,
+        // block or page so that all products/categries/pages/blocks get purged.
         // This is not expected behaviour and should be prevented.
-        $neverPurgeTheseTags = array('cms_block', 'cms_page', 'catalog_product', 
+        $neverPurgeTheseTags = array('cms_block', 'cms_page', 'catalog_product',
             'catalog_category');
         $tags = array_diff($tags, $neverPurgeTheseTags);
         $urls = Mage::getModel('aoestatic/url')->getUrlsByTagStrings($tags);
@@ -167,9 +176,9 @@ class Aoe_Static_Model_Cache
 
     /**
      * Wrapper to purge cache synconiously or async depending on configuration
-     * 
-     * @param mixed $urls 
-     * @param int $priority 
+     *
+     * @param mixed $urls
+     * @param int $priority
      * @return void
      */
     public function purge($urls, $priority=0)
@@ -185,8 +194,8 @@ class Aoe_Static_Model_Cache
 
     /**
      * Trigger purge of all urls directly at varnish instance
-     * 
-     * @param Array|Collection $urls 
+     *
+     * @param Array|Collection $urls
      * @return Aoe_Static_Model_Cache
      */
     public function syncronPurge($urls)
@@ -211,7 +220,7 @@ class Aoe_Static_Model_Cache
 
     /**
      * This method is used by the cron to trigger purges by priority
-     * 
+     *
      * @return void
      */
     public function processPurge()
