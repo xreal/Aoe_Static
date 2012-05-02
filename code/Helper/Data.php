@@ -58,7 +58,7 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
             $block = explode(';', $block);
             $customerBlocks[trim($block[0])] = trim($block[1]);
         }
-        return $customerBlocks;
+        return array_filter($customerBlocks);
     }
 
     /**
