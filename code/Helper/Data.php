@@ -111,10 +111,10 @@ class Aoe_Static_Helper_Data extends Mage_Core_Helper_Abstract
     public function purgeAll()
     {
         $baseUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
-        # TODO Truncate table instead of deleting every url
-        $urls = Mage::getModel('aoestatic/url')->getCollection();
-        foreach ($urls as $url) {
-            $url->delete();
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_write');
+        foreach (array('url', 'tag', 'urltag') as $table) {
+            $resource = Mage::getResourceModel('aoestatic/' . $table);
+            $conn->query(sprintf('TRUNCATE %s;', $resource->getMainTable()));
         }
         return $this->purge(array($baseUrl . '.*'));
     }
