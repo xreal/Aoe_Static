@@ -24,3 +24,4 @@ The module adds a new entry into you cache list. Enable the Varnish-Cache there.
 Also there is a configuration section under Advanced -> System -> Varnish Configuration.
 
 
+
