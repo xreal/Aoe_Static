@@ -1,5 +1,5 @@
 var isJQ = (typeof jQuery !== 'undefined');
-if (isJQ) $.noConflict();
+if (isJQ) jQuery.noConflict();
 (function() {
   if (typeof AJAXHOME_URL !== 'undefined') {
     return;
@@ -14,7 +14,7 @@ if (isJQ) $.noConflict();
 
   var placeholderElems = function placeholderElems() {
     return isJQ ? jQuery('.placeholder') : $$('.placeholder');
-  }
+  };
 
   callHome = function callHome() {
     var data = {getBlocks: {}};
@@ -28,7 +28,7 @@ if (isJQ) $.noConflict();
         // create dynamic id
         id = 'ph_' + counter;
         if (isJQ) {
-          el.attr('id', id)
+          el.attr('id', id);
         } else {
           el.writeAttribute('id', id);
         }
@@ -55,11 +55,12 @@ if (isJQ) $.noConflict();
         new Ajax.Request(AJAXHOME_URL, {
           method: 'get',
           parameters: data,
-          onSuccess: updateBlocks 
+          onSuccess: updateBlocks
         });
       }
     }
-  }
+  };
+
   updateBlocks = function updateBlocks(response) {
     response = isJQ ? response : response.transport.responseText.evalJSON();
     for(var id in response.blocks) {
@@ -69,10 +70,11 @@ if (isJQ) $.noConflict();
         $(id).update(response.blocks[id]);
       }
     }
-  }
+  };
+
   if (isJQ) {
     jQuery(document).ready(callHome);
   } else {
     document.observe("dom:loaded", callHome);
-  }  
+  }
 }());

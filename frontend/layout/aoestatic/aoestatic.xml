@@ -12,6 +12,40 @@
     <!-- This layout handle will only be processed if a cacheable controller action is detected (see configuration) -->
     <!-- If you decide to replace dynamic block only in cacheable actions you can move the content of the default block in this one -->
     <aoestatic_cacheable>
+
+            <reference name="header">
+
+                <!-- Replace cart by static placeholder wrapped with placeholder information (q'n'd solution) -->
+                <action method="unsetChild"><param>top_cart</param></action>
+                <block type="aoestatic/placeholder" name="top_cart">
+                    <action method="setPlaceholderBlockname"><param>top_cart</param></action><!-- required: needs to point to the original block name -->
+                    <action method="setPlaceholderId"><param>top_cart</param></action><!-- optional -->
+                    <block type="core/text" name="placeholder_content">
+                        <action method="setText"><param></param></action>
+                    </block>
+                </block>
+
+                <!-- Replace top menu by static placeholder wrapped with placeholder information (q'n'd solution) -->
+                <action method="unsetChild"><param>topLinks</param></action>
+                <block type="aoestatic/placeholder" name="topLinks"><!-- topLinks is explicitly included in the template, so we need to call this block also "topLinks" -->
+                    <action method="setPlaceholderBlockname"><param>top.links</param></action><!-- required: needs to point to the original block name -->
+                    <action method="setPlaceholderId"><param>topLinks</param></action><!-- optional -->
+                    <block type="core/text" name="placeholder_content">
+                        <action method="setText"><param></param></action>
+                    </block>
+                </block>
+
+            </reference>
+
+            <!-- Other stuff -->
+            <remove name="right.reports.product.viewed" /> 
+            <remove name="paypal.partner.right.logo" />
+            <remove name="catalog.compare.sidebar" />
+            <remove name="right.permanent.callout" />
+            <remove name="right.poll" />
+            <remove name="right.reports.product.compared" />
+            <remove name="left.reports.product.viewed" />
+
     </aoestatic_cacheable>
 
     <!-- This layout handle will only be processed if a not cacheable controller action is detected (see configuration) -->
